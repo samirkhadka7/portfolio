@@ -25,6 +25,7 @@ export default function LoginPage() {
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
       setSubmitting(false);
     }
   };
