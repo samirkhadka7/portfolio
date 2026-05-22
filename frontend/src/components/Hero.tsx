@@ -77,7 +77,7 @@ export function Hero({ site }: HeroProps) {
                   alt={`${site.brand} portrait`}
                   width={192}
                   height={192}
-                  className="h-48 w-48 rounded-2xl border-2 border-primary/30 object-cover shadow-2xl grayscale transition-all duration-700 hover:scale-105 hover:grayscale-0"
+                  className="h-48 w-48 rounded-2xl border-2 border-primary/30 object-cover shadow-2xl transition-all duration-700 hover:scale-105"
                 />
               )}
             </div>
