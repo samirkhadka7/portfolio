@@ -3,7 +3,12 @@
 // + external-proxy quirks caused "Not found" in production). Cross-origin works
 // because the backend sets CORS (credentials + CLIENT_URL) and cookies use
 // sameSite 'none'+secure in prod / 'lax' same-site on localhost in dev.
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
+//
+// Normalize the base URL: request paths already start with `/api/...`, so strip
+// any trailing slash AND an accidental trailing `/api` from the env var. This
+// makes both `https://host` and `https://host/api` work without doubling `/api`.
+const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
+export const API_URL = RAW_API_URL.replace(/\/+$/, '').replace(/\/api$/, '');
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
