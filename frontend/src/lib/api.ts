@@ -1,8 +1,9 @@
-const isServer = typeof window === 'undefined';
-
-export const API_URL = isServer
-  ? (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000')
-  : '';
+// Call the backend directly (both server and client) via NEXT_PUBLIC_API_URL.
+// No Next.js rewrite/proxy — that was unreliable on Vercel (build-time env baking
+// + external-proxy quirks caused "Not found" in production). Cross-origin works
+// because the backend sets CORS (credentials + CLIENT_URL) and cookies use
+// sameSite 'none'+secure in prod / 'lax' same-site on localhost in dev.
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {

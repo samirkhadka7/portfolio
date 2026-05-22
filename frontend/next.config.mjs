@@ -1,5 +1,3 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -16,14 +14,6 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${BACKEND_URL}/api/:path*`,
-      },
-    ];
   },
 };
 
