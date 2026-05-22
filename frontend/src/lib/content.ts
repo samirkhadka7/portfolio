@@ -14,15 +14,24 @@ import type {
 } from '@/types';
 import { API_URL } from './api';
 
+// `cache: 'no-store'` opts consuming routes out of static generation, so Vercel
+// never calls the (possibly sleeping) backend at build time. The AbortController
+// timeout means a cold-starting backend can't hang a request — it falls back to
+// the hardcoded data instead of blocking.
 async function fetchJson<T>(path: string): Promise<T | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
   try {
     const res = await fetch(`${API_URL}${path}`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
+      signal: controller.signal,
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

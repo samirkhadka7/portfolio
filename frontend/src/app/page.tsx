@@ -10,6 +10,10 @@ import { Skills } from '@/components/Skills';
 import { Stats } from '@/components/Stats';
 import { fetchSiteContent } from '@/lib/content';
 
+// Render on-demand, not at build time — the backend may be asleep during the
+// Vercel build, and a build-time fetch would hang and time out static generation.
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const content = await fetchSiteContent();
   const { site } = content;
