@@ -52,7 +52,7 @@ export function Contact({ site }: ContactProps) {
 
   return (
     <section id="contact" className="py-24">
-      <div className="glass-card relative grid gap-16 overflow-hidden rounded-[40px] p-12 md:grid-cols-2">
+      <div className="glass-card relative grid gap-10 overflow-hidden rounded-3xl p-6 sm:p-8 md:grid-cols-2 md:gap-16 md:rounded-[40px] md:p-12">
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-[100px]" />
         <div className="relative z-10 space-y-8">
           <h2 className="font-headline-lg text-headline-lg">
@@ -96,7 +96,7 @@ export function Contact({ site }: ContactProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="relative z-10 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label htmlFor="name" className="font-label-sm text-on-surface-variant">
                 Full Name
