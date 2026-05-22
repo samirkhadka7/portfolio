@@ -1,8 +1,9 @@
+import { getToken } from './auth';
+
 // Call the backend directly (both server and client) via NEXT_PUBLIC_API_URL.
-// No Next.js rewrite/proxy — that was unreliable on Vercel (build-time env baking
-// + external-proxy quirks caused "Not found" in production). Cross-origin works
-// because the backend sets CORS (credentials + CLIENT_URL) and cookies use
-// sameSite 'none'+secure in prod / 'lax' same-site on localhost in dev.
+// Auth uses a bearer token (see ./auth) sent in the Authorization header — this
+// works cross-domain regardless of third-party-cookie blocking. The httpOnly
+// cookie is still sent (credentials: 'include') as a fallback.
 //
 // Normalize the base URL: request paths already start with `/api/...`, so strip
 // any trailing slash AND an accidental trailing `/api` from the env var. This
@@ -10,14 +11,13 @@
 const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
 export const API_URL = RAW_API_URL.replace(/\/+$/, '').replace(/\/api$/, '');
 
-// Surface the resolved backend base URL in the browser console once, so prod
-// env-var issues (wrong/missing NEXT_PUBLIC_API_URL) are obvious at a glance.
 if (typeof window !== 'undefined') {
   console.info('[portfolio] API base URL →', API_URL);
 }
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const url = `${API_URL}${path}`;
+  const token = getToken();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
 
@@ -26,6 +26,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
       ...init,
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...init?.headers,
       },
       credentials: 'include',
@@ -53,6 +54,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function uploadFile(file: File): Promise<{ url: string; publicId: string }> {
+  const token = getToken();
   const formData = new FormData();
   formData.append('file', file);
 
@@ -60,6 +62,7 @@ export async function uploadFile(file: File): Promise<{ url: string; publicId: s
     method: 'POST',
     body: formData,
     credentials: 'include',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
 
   if (!res.ok) {

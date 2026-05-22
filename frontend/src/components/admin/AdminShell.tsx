@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { api } from '@/lib/api';
+import { clearToken } from '@/lib/auth';
 import { Icon } from '@/components/ui/Icon';
 
 const NAV_ITEMS = [
@@ -26,6 +27,25 @@ export function AdminShell({ children }: AdminShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [authState, setAuthState] = useState<'checking' | 'authed'>('checking');
+
+  // Client-side auth guard. The auth cookie lives on the backend domain, so the
+  // frontend can't gate routes via Next.js middleware (it runs on the frontend
+  // domain and never sees the cookie). Instead, hit the protected /api/auth/me:
+  // 200 → authed; 401/any error → bounce to login.
+  useEffect(() => {
+    let active = true;
+    api('/api/auth/me')
+      .then(() => {
+        if (active) setAuthState('authed');
+      })
+      .catch(() => {
+        router.replace('/admin/login');
+      });
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   const handleLogout = async () => {
     try {
@@ -33,9 +53,18 @@ export function AdminShell({ children }: AdminShellProps) {
     } catch {
       // ignore — push to login regardless
     }
+    clearToken();
     router.push('/admin/login');
     router.refresh();
   };
+
+  if (authState === 'checking') {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="font-label-md text-label-md text-on-surface-variant">Loading…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen">

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { env, isProd } from '../config/env';
-import { signAdminToken } from '../middleware/auth';
+import { requireAuth, signAdminToken } from '../middleware/auth';
 import { loginLimiter } from '../middleware/rateLimit';
 
 const router = Router();
@@ -47,9 +47,11 @@ router.post('/logout', (_req, res) => {
   res.json({ ok: true });
 });
 
-router.get('/me', (req, res) => {
-  const token = (req as typeof req & { cookies?: Record<string, string> }).cookies?.token;
-  res.json({ authenticated: Boolean(token) });
+// Protected: returns 200 only with a valid token, 401 otherwise. The frontend
+// uses this for its client-side route guard (the auth cookie lives on the backend
+// domain, so the Next.js middleware on the frontend domain can't see it).
+router.get('/me', requireAuth, (req, res) => {
+  res.json({ authenticated: true, email: req.auth?.sub });
 });
 
 export default router;

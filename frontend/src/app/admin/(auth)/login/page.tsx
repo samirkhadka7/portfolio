@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { setToken } from '@/lib/auth';
 import { FormField, inputCls } from '@/components/admin/FormField';
 
 export default function LoginPage() {
@@ -17,10 +18,11 @@ export default function LoginPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await api('/api/auth/login', {
+      const result = await api<{ ok: boolean; token: string }>('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
+      setToken(result.token);
       router.push('/admin');
       router.refresh();
     } catch (err) {
