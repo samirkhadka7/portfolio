@@ -1,20 +1,10 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth';
-import { upload, uploadBufferToCloudinary } from '../middleware/upload';
+import { upload } from '../middleware/upload';
+import { uploadImage } from '../controllers/uploadController';
 
 const router = Router();
 
-router.post('/', requireAuth, upload.single('file'), async (req, res, next) => {
-  try {
-    if (!req.file) {
-      res.status(400).json({ error: 'No file uploaded' });
-      return;
-    }
-    const result = await uploadBufferToCloudinary(req.file.buffer);
-    res.status(201).json(result);
-  } catch (err) {
-    next(err);
-  }
-});
+router.post('/', requireAuth, upload.single('file'), uploadImage);
 
 export default router;

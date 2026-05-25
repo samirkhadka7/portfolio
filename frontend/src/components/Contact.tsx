@@ -106,7 +106,7 @@ export function Contact({ site }: ContactProps) {
                 name="name"
                 required
                 type="text"
-                placeholder="John Doe"
+                placeholder="John Doe" /////
                 className="w-full rounded-xl border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-on-surface transition-colors focus:border-primary focus:outline-none"
               />
             </div>
